@@ -66,7 +66,7 @@ function preload() {
         "assets/batdie.png",
         { frameWidth: 16, frameHeight: 24 }
     )
-
+    
     this.load.tilemapTiledJSON("tilemap", "assets/map/Map.json");
 
     // Loading Player Animation Atlas
@@ -101,7 +101,7 @@ function create() {
     player.hitbox.body.allowGravity = false
 
     createGems.call(this)
-    createPowerup.call(this)
+    createPowerup.call(this)    
     createCamera.call(this)
 
     cursors = this.input.keyboard.createCursorKeys();
@@ -142,12 +142,12 @@ function create() {
 var flag = false
 function update() {
     debug.string = []
-    //*********************************************************//
+//*********************************************************//
     updatePlayer.call(this)
     updateHitbox.call(this)
     updateObjectAnims.call(this)
 
-
+    
     if (dead && !flag) {
         console.log("fade")
         flag = !flag
@@ -160,7 +160,7 @@ function update() {
 
     }
 
-    //*********************************************************//
+//*********************************************************//
     debug.string.push("Arrow Keys to move  |  Space to Jump")
     debug.string.push(" Q to Basic Attack  |  E to alternative attack")
     debug.string.push(" R to Swap Weapons  |  Press up on ladders to climb")
@@ -487,11 +487,11 @@ function createMap() {
     layers.spikeLayer = map.createStaticLayer("Spike Layer", [tileset, props], 0, 0);
 
     layers.collisionLayer.setCollisionBetween(0, 1000)
-    var group = layers.ladderLayer.createFromTiles(154, -1, { key: "ladder" })
+    var group = layers.ladderLayer.createFromTiles(154, -1, { key:"ladder"})
     ladders = this.physics.add.staticGroup()
     ladders.addMultiple(group)
     ladders.getChildren().forEach(function (sprite) {
-        sprite.setX(sprite.x + 8)
+        sprite.setX(sprite.x+8)
         sprite.setY(sprite.y + 8)
     })
     ladders.refresh()
@@ -499,12 +499,12 @@ function createMap() {
     spikes = this.physics.add.staticGroup()
     spikes.addMultiple(group)
     spikes.getChildren().forEach(function (sprite) {
-        sprite.setX(sprite.x + 8)
+        sprite.setX(sprite.x+8)
         sprite.setY(sprite.y + 8)
         sprite.alive = true
     })
     spikes.refresh()
-
+   
 }
 
 function createCollision() {
@@ -522,9 +522,9 @@ function createCollision() {
 function createCamera() {
     camera = this.cameras.getCamera("")
     //Change camera settings
-    camera.zoom = 2.2;
+    camera.zoom =2.2;
     camera.startFollow(player.sprite);
-    camera.setBounds(0, 0, 16 * 200, 16 * 50)
+    camera.setBounds(0, 0, 16*200, 16*50)
 }
 
 function createObjectAnims() {
@@ -536,7 +536,7 @@ function createObjectAnims() {
     });
     this.anims.create({
         key: 'powerup',
-        frames: this.anims.generateFrameNumbers('powerup', { start: 0, end: 0 }),
+        frames: this.anims.generateFrameNumbers('powerup', { start: 0, end: 0}),
         frameRate: 8,
         repeat: 0
     });
@@ -553,7 +553,7 @@ function createGems() {
 
 function createPowerup() {
     map.filterObjects("Powerup Layer", function (object) {
-        var pUp = powerup.create(object.x + 8, object.y - 8, "powerup")
+        var pUp = powerup.create(object.x + 8, object.y -8, "powerup")
         pUp.setSize(8, 8)
         pUp.setOffset(0, 0)
         pUp.body.allowGravity = false
@@ -614,8 +614,8 @@ function updatePlayer() {
             }
         }
     }
-
-
+    
+    
     if (player.state == player.States.IDLE) {
 
         if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
@@ -655,7 +655,7 @@ function updatePlayer() {
             player.state = player.States.IDLE
 
         }
-    }
+    } 
 }
 
 function updateHitbox() {
@@ -665,7 +665,7 @@ function updateHitbox() {
         player.hitbox.x = player.sprite.x + 16
     }
     player.hitbox.y = player.sprite.y
-
+    
 }
 
 function playerAttack() {
@@ -703,7 +703,7 @@ function enemyHit(char, enemy) {
             enemy.visible = false
         })
         console.log("hit")
-
+        
         enemy.disableBody(true, true);
     }
 
