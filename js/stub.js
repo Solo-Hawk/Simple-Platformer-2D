@@ -11,7 +11,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 300 },
-            debug: true
+            debug: false
         }
     },
     scene: {
@@ -21,7 +21,9 @@ var config = {
     }
 };
 var game = new Phaser.Game(config);
-
+var map;
+var layers = {};
+var groups = {};
 var cursors;
 var adventurer;
 var player;
@@ -52,23 +54,44 @@ function preload() {
     });
 
 
+    this.load.image("Background", "assets/map/Background.png");
+    this.load.image("Midground", "assets/map/Middleground.png");
+    this.load.image("Props", "assets/map/Props.png");
+    this.load.image("Tileset", "assets/map/Tileset.png");
+
+    this.load.tilemapTiledJSON("tilemap", "assets/map/Map.json");
+
+
 }
 
 function create() {
-    testSprite = this.add.sprite(400, 300, 'adventurer', 4)
+   
 
-    text = this.add.text(10, 30, '', { font: '16px Courier', fill: '#ffffff' });
+
+    this.add.image(560, 320, 'Background').setScrollFactor(0.2, 0);
+    this.add.image(560, 320, 'Midground').setScrollFactor(0.4, 0);
+
+    createMap.call(this)
+    //Creating Player
+    var playerSpawn = map.findObject("Spawn Layer", function (object) {
+        if (object.name === "Spawn") {
+            return object
+        }
+    })
     createPlayerAnims.call(this)
-    createPlayer.call(this)
+    createPlayer.call(this, playerSpawn)
     
 
+    this.physics.add.collider(testSprite, layers.collisionLayer);
+
+    text = this.add.text(10, 30, '', { font: '16px Courier', fill: '#ffffff' });
     
     cursors = this.input.keyboard.createCursorKeys();
     console.log(cursors)
-    
 }
 
 function update() {
+    testSprite.setSize(14, 35);
     updatePlayer.call(this)
 
     var debug = []
@@ -84,7 +107,10 @@ function update() {
 
 //***************** NON PHASER.SCENE FUNCTIONS ************//
 //*********************************************************//
-function createPlayer() {
+function createPlayer(spawn) {
+
+    testSprite = this.physics.add.sprite(spawn.x, spawn.y, 'adventurer', 4)
+    testSprite.setCollideWorldBounds(true);
     player = {
         state: 0,
         states: {
@@ -101,6 +127,19 @@ function createPlayer() {
             SWORD: 2,
         }
     }
+}
+
+function createMap() {
+    map = this.make.tilemap({ key: "tilemap" });
+    var tileset = map.addTilesetImage("Tileset", "Tileset");
+    var props = map.addTilesetImage("Props", "Props");
+    map.createStaticLayer("Background Layer", [tileset, props], 0, 0);
+    map.createStaticLayer("Prop Layer", [tileset, props], 0, 0);
+    //layers.collisionLayer = map.createStaticLayer("collisionLayer", [landscape, props], 0, 0);
+    layers.collisionLayer = map.createStaticLayer("Collision Layer", [tileset, props], 0, 0);
+
+    layers.collisionLayer.setCollisionBetween(0, 1000)
+    console.log(map)
 }
 
 function updatePlayer() {
@@ -137,7 +176,8 @@ function updatePlayer() {
     if (player.equiped != player.equipment.SWAP) {
         if (player.equiped == player.equipment.HANDS) {
             if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
-                if (player.state != player.states.ATTACKING || chain ) {
+                if (player.state != player.states.ATTACKING || chain) {
+                    testSprite.setVelocityX(0)
                     if ((chain && player.lastAttack == "hands")) {
                         player.attack++
                         if (player.attack > 3) {
@@ -171,6 +211,7 @@ function updatePlayer() {
             }
             else if (Phaser.Input.Keyboard.JustDown(QKey)) {
                 if (player.state != player.states.ATTACKING || chain) {
+                    testSprite.setVelocityX(0)
                     if ((chain && player.lastAttack == "kick")) {
                         player.attack++
                         if (player.attack > 4) {
@@ -203,20 +244,25 @@ function updatePlayer() {
                 }
             }
             if (cursors.right.isDown && player.state != player.states.ATTACKING) {
+                testSprite.setVelocityX(150);
                 testSprite.play('run2', true)
                 testSprite.setFlipX(false)
             }
             else if (cursors.left.isDown && player.state != player.states.ATTACKING) {
+                testSprite.setVelocityX(-150);
                 testSprite.play('run2', true)
                 testSprite.setFlipX(true)
             }
             else if (player.state == player.states.IDLE) {
+                testSprite.setVelocityX(0)
                 testSprite.play('idle1', true)
             }
         }
         if (player.equiped == player.equipment.SWORD) {
             if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
                 if (player.state != player.states.ATTACKING || chain) {
+
+                    testSprite.setVelocityX(0)
                     if ((chain && player.lastAttack == "sword")) {
                         player.attack++
                         if (player.attack > 3) {
@@ -249,6 +295,7 @@ function updatePlayer() {
             }
             else if (Phaser.Input.Keyboard.JustDown(QKey)) {
                 if (player.state != player.states.ATTACKING || chain) {
+                    testSprite.setVelocityX(0)
                     player.attack = 1
                     clearTimeout(testtimeout)
                     player.state = player.states.ATTACKING;
@@ -270,14 +317,18 @@ function updatePlayer() {
                 }
             }
             if (cursors.right.isDown && player.state != player.states.ATTACKING) {
+                testSprite.setVelocityX(150);
                 testSprite.play('run3', true)
                 testSprite.setFlipX(false)
             }
             else if (cursors.left.isDown && player.state != player.states.ATTACKING) {
+                testSprite.setVelocityX(-150);
                 testSprite.play('run3', true)
                 testSprite.setFlipX(true)
             }
             else if (player.state == player.states.IDLE) {
+
+                testSprite.setVelocityX(0)
                 testSprite.play('idle2', true)
             }
         }
